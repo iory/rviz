@@ -54,7 +54,8 @@ void linkUpdaterStatusFunction(StatusProperty::Level level,
 }
 
 RobotModelDisplay::RobotModelDisplay()
-  : Display(), has_new_transforms_(false), time_since_last_transform_(0.0f)
+  : Display(), has_new_transforms_(false), time_since_last_transform_(0.0f),
+    time_since_last_checked_robot_description_(0.0f)
 {
   visual_enabled_property_ =
       new Property("Visual Enabled", true, "Whether to display the visual representation of the robot.",
@@ -225,8 +226,10 @@ void RobotModelDisplay::onDisable()
 void RobotModelDisplay::update(float wall_dt, float /*ros_dt*/)
 {
   time_since_last_transform_ += wall_dt;
+  time_since_last_checked_robot_description_ += wall_dt;
   float rate = update_rate_property_->getFloat();
   bool update = rate < 0.0001f || time_since_last_transform_ >= rate;
+  bool check_model_update = time_since_last_checked_robot_description_ >= 1.0;
 
   if (has_new_transforms_ || update)
   {
@@ -238,6 +241,10 @@ void RobotModelDisplay::update(float wall_dt, float /*ros_dt*/)
 
     has_new_transforms_ = false;
     time_since_last_transform_ = 0.0f;
+  }
+  if (check_model_update) {
+    load();
+    time_since_last_checked_robot_description_ = 0.0f;
   }
 }
 

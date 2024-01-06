@@ -98,6 +98,7 @@ protected:
                             /// transforms
 
   float time_since_last_transform_;
+  float time_since_last_checked_robot_description_;
 
   std::string robot_description_;
 
